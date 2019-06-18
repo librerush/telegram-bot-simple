@@ -145,3 +145,32 @@ replyOrEdit emsg = do
   if uid == Just botUserId
      then editUpdateMessage emsg
      else reply (editMessageToReplyMessage emsg)
+
+-- | Reply a photo
+replyPhoto :: Text -> BotM ()
+replyPhoto = replyPhotoTwo . toReplyMessage
+
+replyMessageToSendPhotoRequest
+  :: SomeChatId -> ReplyMessage -> SendPhotoRequest
+replyMessageToSendPhotoRequest someChatId ReplyMessage {..} =
+  SendPhotoRequest
+  { sendPhotoChatId              = someChatId
+  , sendPhotoPhoto               = replyMessageText
+  , sendPhotoCaption             = Nothing
+  , sendPhotoParseMode           = replyMessageParseMode
+  , sendPhotoDisableNotification = replyMessageDisableNotification
+  , sendPhotoReplyToMessageId    = replyMessageReplyToMessageId
+  , sendPhotoReplyMarkup         = replyMessageReplyMarkup
+  }
+
+replyToPhoto :: SomeChatId -> ReplyMessage -> BotM ()
+replyToPhoto someChatId rmsg = do
+  let msg = replyMessageToSendPhotoRequest someChatId rmsg
+  void $ liftClientM $ sendPhoto msg
+
+replyPhotoTwo :: ReplyMessage -> BotM ()
+replyPhotoTwo rmsg = do
+  mchatId <- currentChatId
+  case mchatId of
+    Just chatId -> replyToPhoto (SomeChatId chatId) rmsg
+    Nothing     -> liftIO $ putStrLn "No chat to reply to"
