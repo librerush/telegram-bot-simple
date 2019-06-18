@@ -1,16 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-import Control.Applicative
-import Data.Monoid
-import Data.Text (Text)
-import qualified Data.Text as Text
-import Data.HashMap.Strict (HashMap)
-import qualified Data.HashMap.Strict as HashMap
+import           Control.Applicative
+import           Data.HashMap.Strict              (HashMap)
+import qualified Data.HashMap.Strict              as HashMap
+import           Data.Monoid
+import           Data.Text                        (Text)
+import qualified Data.Text                        as Text
 
-import Telegram.Bot.API
-import Telegram.Bot.Simple
-import Telegram.Bot.Simple.UpdateParser
+import           Telegram.Bot.API
+import           Telegram.Bot.Simple
+import           Telegram.Bot.Simple.UpdateParser
 
 type Item = Text
 
@@ -131,8 +131,4 @@ run token = do
   startBot_ (conversationBot updateChatId todoBot3) env
 
 main :: IO ()
-main = do
-  putStrLn "Please, enter Telegram bot's API token:"
-  token <- Token . Text.pack <$> getLine
-  run token
-  return ()
+main = getEnvToken "TELEGRAM_BOT_TOKEN" >>= run

@@ -1,19 +1,19 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DataKinds        #-}
+{-# LANGUAGE DeriveGeneric    #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeOperators    #-}
 module Telegram.Bot.API.Methods where
 
-import Data.Aeson
-import Data.Proxy
-import Data.Text (Text)
-import GHC.Generics (Generic)
-import Servant.API
-import Servant.Client hiding (Response)
+import           Data.Aeson
+import           Data.Proxy
+import           Data.Text                       (Text)
+import           GHC.Generics                    (Generic)
+import           Servant.API
+import           Servant.Client                  hiding (Response)
 
-import Telegram.Bot.API.Internal.Utils
-import Telegram.Bot.API.MakingRequests
-import Telegram.Bot.API.Types
+import           Telegram.Bot.API.Internal.Utils
+import           Telegram.Bot.API.MakingRequests
+import           Telegram.Bot.API.Types
 
 -- * Available methods
 
@@ -44,6 +44,14 @@ deleteMessage = client (Proxy @DeleteMessage)
 
 type SendMessage
   = "sendMessage" :> ReqBody '[JSON] SendMessageRequest :> Post '[JSON] (Response Message)
+
+-- ** 'sendPhoto'
+
+type SendPhoto
+  = "sendPhoto" :> ReqBody '[JSON] SendPhotoRequest :> Post '[JSON] (Response Message)
+
+sendPhoto :: SendPhotoRequest -> ClientM (Response Message)
+sendPhoto = client (Proxy @SendPhoto)
 
 -- | Use this method to send text messages.
 -- On success, the sent 'Message' is returned.
@@ -94,3 +102,17 @@ data SendMessageRequest = SendMessageRequest
 
 instance ToJSON   SendMessageRequest where toJSON = gtoJSON
 instance FromJSON SendMessageRequest where parseJSON = gparseJSON
+
+-- | Request parameters for 'sendPhoto'.
+data SendPhotoRequest = SendPhotoRequest
+  { sendPhotoChatId              :: SomeChatId
+  , sendPhotoPhoto               :: Text
+  , sendPhotoCaption             :: Maybe Text
+  , sendPhotoParseMode           :: Maybe ParseMode
+  , sendPhotoDisableNotification :: Maybe Bool
+  , sendPhotoReplyToMessageId    :: Maybe MessageId
+  , sendPhotoReplyMarkup         :: Maybe SomeReplyMarkup
+  } deriving (Generic)
+
+instance ToJSON SendPhotoRequest where toJSON = gtoJSON
+instance FromJSON SendPhotoRequest where parseJSON = gparseJSON
