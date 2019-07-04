@@ -147,30 +147,30 @@ replyOrEdit emsg = do
      else reply (editMessageToReplyMessage emsg)
 
 -- | Reply a photo
-replyPhoto :: Text -> BotM ()
-replyPhoto = replyPhotoTwo . toReplyMessage
+replyPhoto :: Text -> Text -> BotM ()
+replyPhoto txt caption = replyPhotoTwo caption $ toReplyMessage txt
 
 replyMessageToSendPhotoRequest
-  :: SomeChatId -> ReplyMessage -> SendPhotoRequest
-replyMessageToSendPhotoRequest someChatId ReplyMessage {..} =
+  :: Text -> SomeChatId -> ReplyMessage -> SendPhotoRequest
+replyMessageToSendPhotoRequest caption someChatId ReplyMessage {..} =
   SendPhotoRequest
   { sendPhotoChatId              = someChatId
   , sendPhotoPhoto               = replyMessageText
-  , sendPhotoCaption             = Nothing
+  , sendPhotoCaption             = Just caption
   , sendPhotoParseMode           = replyMessageParseMode
   , sendPhotoDisableNotification = replyMessageDisableNotification
   , sendPhotoReplyToMessageId    = replyMessageReplyToMessageId
   , sendPhotoReplyMarkup         = replyMessageReplyMarkup
   }
 
-replyToPhoto :: SomeChatId -> ReplyMessage -> BotM ()
-replyToPhoto someChatId rmsg = do
-  let msg = replyMessageToSendPhotoRequest someChatId rmsg
+replyToPhoto :: Text -> SomeChatId -> ReplyMessage -> BotM ()
+replyToPhoto caption someChatId rmsg = do
+  let msg = replyMessageToSendPhotoRequest caption someChatId rmsg
   void $ liftClientM $ sendPhoto msg
 
-replyPhotoTwo :: ReplyMessage -> BotM ()
-replyPhotoTwo rmsg = do
+replyPhotoTwo :: Text -> ReplyMessage -> BotM ()
+replyPhotoTwo caption rmsg = do
   mchatId <- currentChatId
   case mchatId of
-    Just chatId -> replyToPhoto (SomeChatId chatId) rmsg
+    Just chatId -> replyToPhoto caption (SomeChatId chatId) rmsg
     Nothing     -> liftIO $ putStrLn "No chat to reply to"
