@@ -69,8 +69,8 @@ library
     , mtl
     , pretty-show
     , profunctors
-    , servant
-    , servant-client
+    , servant == 0.15
+    , servant-client == 0.15
     , split
     , stm
     , template-haskell
