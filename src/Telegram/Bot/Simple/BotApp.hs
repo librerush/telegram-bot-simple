@@ -29,7 +29,7 @@ startBotAsync bot env = do
   fork_ $ startBotPolling bot botEnv
   return (issueAction botEnv Nothing)
   where
-    fork_ = void . forever . forkIO . void . flip runClientM env
+    fork_ = void . forkIO . forever . void . flip runClientM env
 
 -- | Like 'startBotAsync', but ignores result.
 startBotAsync_ :: BotApp model action -> ClientEnv -> IO ()
