@@ -12,7 +12,7 @@ module Telegram.Bot.Simple.BotApp (
 ) where
 
 import           Control.Concurrent                  (forkIO)
-import           Control.Monad                       (void)
+import           Control.Monad                       (forever, void)
 import           Data.String                         (fromString)
 import           Servant.Client
 import           System.Environment                  (getEnv)
@@ -29,7 +29,7 @@ startBotAsync bot env = do
   fork_ $ startBotPolling bot botEnv
   return (issueAction botEnv Nothing)
   where
-    fork_ = void . forkIO . void . flip runClientM env
+    fork_ = void . forever . forkIO . void . flip runClientM env
 
 -- | Like 'startBotAsync', but ignores result.
 startBotAsync_ :: BotApp model action -> ClientEnv -> IO ()
